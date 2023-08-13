@@ -97,8 +97,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['a
                     </form>
                 </td>
             </tr>
+            
         <?php } ?>
     </table>
+    <form method="get" action="add_tire.php">
+        <input type="hidden" name="vehicle_id" value="<?php echo $vehicle_id; ?>">
+        <input type="submit" value="Add Tire">
+    </form>
 </body>
 <?php include('view/footer.php'); ?>
 </html>
