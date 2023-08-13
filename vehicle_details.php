@@ -83,8 +83,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['a
                 <td><?php echo $tire['install_date']; ?></td>
                 <td><?php echo $tire['service_count']; ?></td>
                 <td>
-                    <form method="post" action="edit_tire.php">
+                    <form method="get" action="edit_tire.php"> <!-- Change the form action URL -->
                         <input type="hidden" name="tire_id" value="<?php echo $tire['tire_ID']; ?>">
+                        <input type="hidden" name="vehicle_id" value="<?php echo $vehicle_id; ?>">
                         <input type="submit" value="Edit">
                     </form>
                 </td>
@@ -99,4 +100,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['a
         <?php } ?>
     </table>
 </body>
+<?php include('view/footer.php'); ?>
 </html>

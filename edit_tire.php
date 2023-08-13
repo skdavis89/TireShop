@@ -7,12 +7,13 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
-if (!isset($_GET['tire_id'])) {
-    header("Location: vehicle_details.php?vehicle_id=$vehicle_id");
+if (!isset($_GET['tire_id']) || !isset($_GET['vehicle_id'])) {
+    header("Location: customer_search.php");
     exit();
 }
 
 $tire_id = $_GET['tire_id'];
+$vehicle_id = $_GET['vehicle_id'];
 
 // Query to get the selected tire's details
 $query = "SELECT * FROM tire WHERE tire_ID=:tire_id";
@@ -28,8 +29,25 @@ if (!$tire) {
 
 // Handle form submission for updating tire details
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Retrieve updated details from the form
-    // Sanitize and update the tire details in the database
+    $tire_position = $_POST['tire_position'];
+    $tire_code = $_POST['tire_code'];
+    $tire_name = $_POST['tire_name'];
+    $install_date = $_POST['install_date'];
+    $service_count = $_POST['service_count'];
+
+    // Update the tire details in the database
+    $update_query = "UPDATE tire
+                     SET tire_position=:tire_position, tire_code=:tire_code, tire_name=:tire_name,
+                         install_date=:install_date, service_count=:service_count
+                     WHERE tire_ID=:tire_id";
+    $update_statement = $db->prepare($update_query);
+    $update_statement->bindValue(':tire_position', $tire_position);
+    $update_statement->bindValue(':tire_code', $tire_code);
+    $update_statement->bindValue(':tire_name', $tire_name);
+    $update_statement->bindValue(':install_date', $install_date);
+    $update_statement->bindValue(':service_count', $service_count);
+    $update_statement->bindValue(':tire_id', $tire_id);
+    $update_statement->execute();
 
     // Redirect back to vehicle_details.php after updating
     header("Location: vehicle_details.php?vehicle_id=$vehicle_id");
@@ -61,4 +79,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <input type="submit" value="Save">
     </form>
 </body>
+<?php include('view/footer.php'); ?>
 </html>

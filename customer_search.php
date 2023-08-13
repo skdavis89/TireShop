@@ -81,4 +81,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </table>
     <?php } ?>
 </body>
+<?php include('view/footer.php'); ?>
 </html>
