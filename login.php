@@ -6,24 +6,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    // Sanitize the inputs
     $username = filter_var($username, FILTER_SANITIZE_STRING);
-    $password = filter_var($password, FILTER_SANITIZE_STRING);
 
-    // Query to check if the user exists
-    $query = "SELECT * FROM employee WHERE username=:username AND password=:password";
+    $query = "SELECT password FROM employee WHERE username=:username";
     $statement = $db->prepare($query);
     $statement->bindValue(':username', $username);
-    $statement->bindValue(':password', $password);
     $statement->execute();
+    $userData = $statement->fetch();
 
-    if ($statement->rowCount() == 1) {
-        // Successful login
+    if ($userData && password_verify($password, $userData['password'])) {
         $_SESSION['username'] = $username;
-        header("Location: customer_search.php"); // Redirect to the next page
+        header("Location: customer_search.php"); 
         exit();
     } else {
-        // Invalid credentials
         $error = "Invalid username or password";
     }
 }

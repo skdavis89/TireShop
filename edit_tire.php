@@ -15,7 +15,6 @@ if (!isset($_GET['tire_id']) || !isset($_GET['vehicle_id'])) {
 $tire_id = $_GET['tire_id'];
 $vehicle_id = $_GET['vehicle_id'];
 
-// Query to get the selected tire's details
 $query = "SELECT * FROM tire WHERE tire_ID=:tire_id";
 $statement = $db->prepare($query);
 $statement->bindValue(':tire_id', $tire_id);
@@ -27,7 +26,6 @@ if (!$tire) {
     exit();
 }
 
-// Handle form submission for updating tire details
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $tire_position = $_POST['tire_position'];
     $tire_code = $_POST['tire_code'];
@@ -35,23 +33,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $install_date = $_POST['install_date'];
     $service_count = $_POST['service_count'];
 
-    // Update the tire details in the database
-    $update_query = "UPDATE tire
-                     SET tire_position=:tire_position, tire_code=:tire_code, tire_name=:tire_name,
-                         install_date=:install_date, service_count=:service_count
-                     WHERE tire_ID=:tire_id";
-    $update_statement = $db->prepare($update_query);
-    $update_statement->bindValue(':tire_position', $tire_position);
-    $update_statement->bindValue(':tire_code', $tire_code);
-    $update_statement->bindValue(':tire_name', $tire_name);
-    $update_statement->bindValue(':install_date', $install_date);
-    $update_statement->bindValue(':service_count', $service_count);
-    $update_statement->bindValue(':tire_id', $tire_id);
-    $update_statement->execute();
+    $query = "SELECT * FROM tire WHERE vehicle_ID=:vehicle_id AND tire_position=:tire_position";
+    $statement = $db->prepare($query);
+    $statement->bindValue(':vehicle_id', $vehicle_id);
+    $statement->bindValue(':tire_position', $tire_position);
+    $statement->execute();
 
-    // Redirect back to vehicle_details.php after updating
-    header("Location: vehicle_details.php?vehicle_id=$vehicle_id");
-    exit();
+    if ($statement->rowCount() > 0) {
+        $error = "Tire position is already assigned to another tire of this vehicle.";
+    } else {
+        $update_query = "UPDATE tire
+                         SET tire_position=:tire_position, tire_code=:tire_code, tire_name=:tire_name,
+                             install_date=:install_date, service_count=:service_count
+                         WHERE tire_ID=:tire_id";
+        $update_statement = $db->prepare($update_query);
+        $update_statement->bindValue(':tire_position', $tire_position);
+        $update_statement->bindValue(':tire_code', $tire_code);
+        $update_statement->bindValue(':tire_name', $tire_name);
+        $update_statement->bindValue(':install_date', $install_date);
+        $update_statement->bindValue(':service_count', $service_count);
+        $update_statement->bindValue(':tire_id', $tire_id);
+        $update_statement->execute();
+
+        header("Location: vehicle_details.php?vehicle_id=$vehicle_id");
+        exit();
+    }
 }
 ?>
 
@@ -64,10 +70,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <?php include('view/header.php'); ?>
 
     <h2>Edit Tire</h2>
+    <?php if (isset($error)) { ?>
+        <p><?php echo $error; ?></p>
+    <?php } ?>
     <form method="post" action="">
-        <!-- Use the tire's details as placeholder values -->
         <label for="tire_position">Tire Position:</label>
-        <input type="text" id="tire_position" name="tire_position" value="<?php echo $tire['tire_position']; ?>" required><br>
+        <select id="tire_position" name="tire_position" required>
+            <option value="FR" <?php if ($tire['tire_position'] === 'FR') echo 'selected'; ?>>FR</option>
+            <option value="FL" <?php if ($tire['tire_position'] === 'FL') echo 'selected'; ?>>FL</option>
+            <option value="RR" <?php if ($tire['tire_position'] === 'RR') echo 'selected'; ?>>RR</option>
+            <option value="RL" <?php if ($tire['tire_position'] === 'RL') echo 'selected'; ?>>RL</option>
+            <option value="S" <?php if ($tire['tire_position'] === 'S') echo 'selected'; ?>>S</option>
+            <option value="F" <?php if ($tire['tire_position'] === 'F') echo 'selected'; ?>>F</option>
+            <option value="R" <?php if ($tire['tire_position'] === 'R') echo 'selected'; ?>>R</option>
+        </select><br>
         <label for="tire_code">Tire Code:</label>
         <input type="text" id="tire_code" name="tire_code" value="<?php echo $tire['tire_code']; ?>" required><br>
         <label for="tire_name">Tire Name:</label>
@@ -78,6 +94,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <input type="number" id="service_count" name="service_count" value="<?php echo $tire['service_count']; ?>" required><br>
         <input type="submit" value="Save">
     </form>
+        <form method="get" action="vehicle_details.php">
+            <input type="hidden" name="vehicle_id" value="<?php echo $vehicle_id; ?>">
+            <input type="submit" value="Back">
+        </form>
 </body>
 <?php include('view/footer.php'); ?>
 </html>

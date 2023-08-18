@@ -14,16 +14,13 @@ if (!isset($_GET['vehicle_id'])) {
 
 $vehicle_id = $_GET['vehicle_id'];
 
-// Handle form submission for adding a new tire
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Retrieve tire details from the form
     $tire_position = $_POST['tire_position'];
     $tire_code = $_POST['tire_code'];
     $tire_name = $_POST['tire_name'];
     $install_date = $_POST['install_date'];
     $service_count = $_POST['service_count'];
 
-    // Sanitize and insert the new tire details into the database
     $insert_query = "INSERT INTO tire (vehicle_ID, tire_position, tire_code, tire_name, install_date, service_count)
                      VALUES (:vehicle_id, :tire_position, :tire_code, :tire_name, :install_date, :service_count)";
     $insert_statement = $db->prepare($insert_query);
@@ -35,7 +32,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $insert_statement->bindValue(':service_count', $service_count);
     $insert_statement->execute();
 
-    // Redirect back to vehicle_details.php after adding the tire
     header("Location: vehicle_details.php?vehicle_id=$vehicle_id");
     exit();
 }
@@ -52,7 +48,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <h2>Add Tire</h2>
     <form method="post" action="add_tire.php?vehicle_id=<?php echo $vehicle_id; ?>">
         <label for="tire_position">Tire Position:</label>
-        <input type="text" id="tire_position" name="tire_position" required><br>
+        <select id="tire_position" name="tire_position" required>
+            <option value="FR">FR</option>
+            <option value="FL">FL</option>
+            <option value="RR">RR</option>
+            <option value="RL">RL</option>
+            <option value="S">S</option>
+            <option value="F">F</option>
+            <option value="R">R</option>
+        </select><br>
         <label for="tire_code">Tire Code:</label>
         <input type="text" id="tire_code" name="tire_code" required><br>
         <label for="tire_name">Tire Name:</label>
@@ -64,4 +68,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <input type="submit" value="Add Tire">
     </form>
 </body>
+<?php include('view/footer.php'); ?>
 </html>

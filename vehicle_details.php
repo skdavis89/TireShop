@@ -14,7 +14,6 @@ if (!isset($_GET['vehicle_id'])) {
 
 $vehicle_id = $_GET['vehicle_id'];
 
-// Query to get the selected vehicle's details
 $query = "SELECT * FROM vehicle WHERE vehicle_ID=:vehicle_id";
 $statement = $db->prepare($query);
 $statement->bindValue(':vehicle_id', $vehicle_id);
@@ -26,24 +25,20 @@ if (!$vehicle) {
     exit();
 }
 
-// Query to get the tires associated with the selected vehicle
 $query = "SELECT * FROM tire WHERE vehicle_ID=:vehicle_id";
 $statement = $db->prepare($query);
 $statement->bindValue(':vehicle_id', $vehicle_id);
 $statement->execute();
 $tires = $statement->fetchAll();
 
-// Handle tire deletion
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['action'] == 'delete') {
     $tire_id = $_POST['tire_id'];
 
-    // Delete the tire from the database
     $delete_query = "DELETE FROM tire WHERE tire_ID=:tire_id";
     $delete_statement = $db->prepare($delete_query);
     $delete_statement->bindValue(':tire_id', $tire_id);
     $delete_statement->execute();
 
-    // Refresh the page to update the tire list
     header("Location: vehicle_details.php?vehicle_id=$vehicle_id");
     exit();
 }
